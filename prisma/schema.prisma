@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  name      String
+  category  String
+  price     Float
+  images    String   // Storing JSON stringified array of images
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  orderId     String   @unique // format: LIT-YYYYMMDD-XXXX
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  status      String   @default("Nuevo") // "Nuevo", "Contactado", "Pagado", "Enviado", "Cancelado"
+  
+  // Customer details
+  firstName   String
+  lastName    String
+  phone       String
+  email       String?
+  
+  // Delivery details
+  deliveryMethod String // "Envio" or "Retiro"
+  addressLine1   String?
+  addressCity    String?
+  addressState   String?
+  addressZip     String?
+  addressCountry String?
+  
+  // Items stored as a JSON string for simplicity given SQLite limitations with relation arrays
+  // or we can use a related model for strong typing
+  items       String 
+  
+  // Totals
+  subtotal    Float
+  discount    Float    @default(0)
+  shipping    Float    @default(0)
+  tax         Float    @default(0)
+  total       Float
+  currency    String   @default("USD")
+  
+  coupon      String?
+  notes       String?
+  
+  // Sales rep details
+  whatsAppNumber String @default("+15557089007")
+  assignedTo     String?
+}
